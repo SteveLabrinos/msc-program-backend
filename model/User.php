@@ -22,15 +22,15 @@
 
     //  constructor
     public function __construct($id, $firstName, $lastName, $email, 
-        $password, $role, $signupDate, $registrationNumber) {
+        $password, $role) {
         $this->setId($id);
         $this->setFirstName($firstName);
         $this->setLastName($lastName);
         $this->setEmail($email);
         $this->setPassword($password);
         $this->setRole($role);
-        $this->setSignupDate($signupDate);
-        $this->setRegistrationNumber($registrationNumber);
+        $this->setSignupDate(null);
+        $this->setRegistrationNumber(null);
     }
 
     //  setters
@@ -113,7 +113,8 @@
         if(strlen($password) < 0 || strlen($password) > 50) {
             throw new TaskException("User Email Error");
         }
-        $this->password = $password;
+        //  create the hashed password before inserting
+        $this->password = password_hash($password, PASSWORD_DEFAULT);
     }
 
     public function setRole($role) {
@@ -122,7 +123,7 @@
             && strtoupper($role) !== 'STUDENT') {
             throw new TaskException("User Role must be STUFF or TEACHER or STUDENT");
         }
-        $this->role = $tole;
+        $this->role = $role;
     }
 
     public function setPhone($phone) {
@@ -151,15 +152,16 @@
         if(($signupDate !== null) 
             && date_format(date_create_from_format('d/m/Y', $signupDate), 'd/m/Y') !== $signupDate) {
             throw new TaskException("User Sign up Date Error");
+        } elseif (!$signupDate) {
+            $this->signupDate = date("d/m/Y");
         }
-        $this->signupDate = $signupDate;
     }
 
     public function setRegistrationNumber($registrationNumber) {
         if(($registrationNumber !== null) && (!is_numeric($registrationNumber))) {
             throw new TaskException("User Registration Number Error");
         }
-        $this->registrationNumber = "MSC-".$registrationNumber;
+        $this->registrationNumber = "MSC-".random_int(1000, 9999);
     }
 
     public function returnUserAsArray() {
