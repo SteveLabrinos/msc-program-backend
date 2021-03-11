@@ -11,6 +11,7 @@ require_once('../model/User.php');
  // Create a new db connection in writeDB
 try {
     $writeDB = DB::connectWriteDB();
+    $readDB = DB::connectReadDB();
 } catch (PDOException $ex) {
     //  Log the error
     error_log("Connection error - ".$ex, 0);
@@ -167,14 +168,63 @@ elseif (empty($_GET)) {
             $response = new Response();
             $response->setHttpStatusCode(500);
             $response->setSuccess(false);
-            $response->addMessage("User Creation error".$e->getMessage());
+            $response->addMessage($e->getMessage());
             $response->send();
             exit;
         }
     }
     //  Get all users
     elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        //  fetch all users from the DB
+        try {
+            $query = 'SELECT id, first_name, last_name, password, email, role, phone, address, 
+                             birth_date, signup_date, registration_number
+                      FROM app_user
+                      ORDER BY role, last_name';
+            $stmt = $readDB->prepare($query);
+            $stmt->execute();
 
+            $rowCount = $stmt->rowCount();
+
+            $usersArray = array();
+
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                extract($row);
+                $user = new User($id, $first_name, $last_name, $email, $password, $role);
+                $user->setAddress($address);
+                $user->setPhone($phone);
+                $user->setBirthDate($birth_date);
+
+                $usersArray[] = $user->returnUserAsArray();
+            }
+
+            $returnData = array(
+                "rows_returned" => $rowCount,
+                "users" => $usersArray
+            );
+
+            $response = new Response();
+            $response->setHttpStatusCode(200);
+            $response->setSuccess(true);
+            $response->setData($returnData);
+            $response->send();
+            exit;
+        } catch (PDOException $e) {
+            error_log("Database query erro".$e, 0);
+            $response = new Response();
+            $response->setHttpStatusCode(500);
+            $response->setSuccess(false);
+            $response->addMessage("Error fetching users from database".$e->getMessage());
+            $response->send();
+            exit;
+        } catch (UserException $e) {
+            $response = new Response();
+            $response->setHttpStatusCode(500);
+            $response->setSuccess(false);
+            $response->addMessage($e->getMessage());
+            $response->send();
+            exit;
+        }
 
 
 

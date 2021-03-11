@@ -82,7 +82,7 @@
     public function setId($id) {
         //  check if the argument is not numeric or negative number
         //  or the object has an id value
-        if(($id !== null) && (!is_numeric($id) || $id <=0 || $this->_id !== null)) {
+        if(($id !== null) && (!is_numeric($id) || $id <=0 || $this->id !== null)) {
             throw new TaskException("User ID Error");
         }
         $this->id = $id;
@@ -110,8 +110,8 @@
     }
 
     public function setPassword($password) {
-        if(strlen($password) < 0 || strlen($password) > 50) {
-            throw new TaskException("User Email Error");
+        if(strlen($password) < 0 || strlen($password) > 255) {
+            throw new UserException("User Email Error");
         }
         //  create the hashed password before inserting
         $this->password = password_hash($password, PASSWORD_DEFAULT);
@@ -121,21 +121,21 @@
         if(strtoupper($role) !== 'STUFF' 
             && strtoupper($role) !== 'TEACHER'
             && strtoupper($role) !== 'STUDENT') {
-            throw new TaskException("User Role must be STUFF or TEACHER or STUDENT");
+            throw new UserException("User Role must be STUFF or TEACHER or STUDENT");
         }
         $this->role = $role;
     }
 
     public function setPhone($phone) {
         if(($phone !== null) && (strlen($phone) > 20 )) {
-            throw new TaskException("User Phone Error");
+            throw new UserException("User Phone Error");
         }
         $this->phone = $phone;
     }
 
     public function setAddress($address) {
         if(($address !== null) && (strlen($address) > 100 )) {
-            throw new TaskException("User Address Error");
+            throw new UserException("User Address Error");
         }
         $this->address = $address;
     }
@@ -143,7 +143,7 @@
     public function setBirthDate($birthDate) {
         if(($birthDate !== null) 
             && date_format(date_create_from_format('d/m/Y', $birthDate), 'd/m/Y') !== $birthDate) {
-            throw new TaskException("User Birth Date Error");
+            throw new UserException("User Birth Date Error");
         }
         $this->birhDate = $birthDate;
     }
@@ -151,7 +151,7 @@
     public function setSignupDate($signupDate) {
         if(($signupDate !== null) 
             && date_format(date_create_from_format('d/m/Y', $signupDate), 'd/m/Y') !== $signupDate) {
-            throw new TaskException("User Sign up Date Error");
+            throw new UserException("User Sign up Date Error");
         } elseif (!$signupDate) {
             $this->signupDate = date("d/m/Y");
         }
@@ -159,7 +159,7 @@
 
     public function setRegistrationNumber($registrationNumber) {
         if(($registrationNumber !== null) && (!is_numeric($registrationNumber))) {
-            throw new TaskException("User Registration Number Error");
+            throw new UserException("User Registration Number Error");
         }
         $this->registrationNumber = "MSC-".random_int(1000, 9999);
     }
@@ -170,7 +170,6 @@
             "firstName" => $this->getFirstName(),
             "lastName" => $this->getLastName(),
             "email" => $this->getEmail(),
-            "password" => $this->getPassword(),
             "role" => $this->getRole(),
             "phone" => $this->getPhone(),
             "address" => $this->getAddress(),
