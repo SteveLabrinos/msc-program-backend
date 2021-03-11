@@ -225,9 +225,6 @@ elseif (empty($_GET)) {
             $response->send();
             exit;
         }
-
-
-
     }
     //  no other methods are allowed
     else {
