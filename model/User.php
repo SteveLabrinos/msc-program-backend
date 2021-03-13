@@ -29,8 +29,6 @@
         $this->setEmail($email);
         $this->setPassword($password);
         $this->setRole($role);
-        $this->setSignupDate(null);
-        $this->setRegistrationNumber(null);
     }
 
     //  setters
@@ -85,7 +83,8 @@
         if(($id !== null) && (!is_numeric($id) || $id <=0 || $this->id !== null)) {
             throw new TaskException("User ID Error");
         }
-        $this->id = $id;
+
+        $this->id = intval($id);
     }
 
     public function setFirstName($firstName) {

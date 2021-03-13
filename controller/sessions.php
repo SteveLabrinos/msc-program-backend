@@ -126,7 +126,7 @@ elseif (empty($_GET)) {
     } 
 
     //  help to prevent a brute force attacks
-    sleep(0.5);
+    sleep(0.2);
 
     //  check that the body is json
     if ($_SERVER['CONTENT_TYPE'] !== 'application/json') {
@@ -179,7 +179,7 @@ elseif (empty($_GET)) {
         $email = trim($jsonData->email);
         $password = $jsonData->password;
 
-        $query = 'SELECT id, password return_password
+        $query = 'SELECT id, password return_password, role, first_name, last_name
                   FROM app_user
                   WHERE email = :email';
         $stmt = $writeDB->prepare($query);
@@ -193,7 +193,7 @@ elseif (empty($_GET)) {
             $response = new Response();
             $response->setHttpStatusCode(401);
             $response->setSuccess(false);
-            $response->addMessage("Email or password is incorrect - no rows returned");
+            $response->addMessage("Email or password is incorrect");
             $response->send();
             exit;
         } 
@@ -236,8 +236,11 @@ elseif (empty($_GET)) {
     $returnSessionId = $writeDB->lastInsertId();
 
     $returnData = array(
-        "session_id" => $returnSessionId,
-        "access_token" => $accessToken
+        "sessionId" => $returnSessionId,
+        "accessToken" => $accessToken,
+        "role" => $role,
+        "firstName" => $first_name,
+        "lastName" => $last_name
     );
 
     $response = new Response();
