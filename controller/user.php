@@ -388,6 +388,8 @@ elseif (empty($_GET)) {
                 $user->setAddress($address);
                 $user->setPhone($phone);
                 $user->setBirthDate($birth_date);
+                $user->setSignupDate(null);
+                $user->setRegistrationNumber(null);
 
                 $usersArray[] = $user->returnUserAsArray();
             }

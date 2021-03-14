@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 //  apis to get a specific course - UPDATE, DELETE
 if(array_key_exists("courseid", $_GET)) {
     $courseId = $_GET['courseid'];
-    echo $courseId;
+
 
     if ($courseId === '' || !is_numeric($courseId)) {
         $response = new Response();
