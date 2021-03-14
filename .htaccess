@@ -21,3 +21,6 @@ RewriteRule ^users/([0-9]+)$ controller/user.php?userid=$1 [L]
 RewriteRule ^sessions/([0-9]+)$ controller/sessions.php?sessionid=$1 [L]
 RewriteRule ^sessions$ controller/sessions.php [L]
 
+RewriteRule ^courses/([0-9]+)$ controller/courses.php?courseid=$1 [L]
+RewriteRule ^courses$ controller/courses.php [L]
+

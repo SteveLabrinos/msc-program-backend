@@ -113,7 +113,7 @@ if(array_key_exists("userid", $_GET)) {
 
             //  Response after deleting the user
             $returnData = array( "id" => intval($userId) );
-            
+
             $response = new Response();
             $response->setHttpStatusCode(200);
             $response->setSuccess(true);
@@ -296,7 +296,7 @@ elseif (empty($_GET)) {
             $jsonData->role
         );
         $user->setRegistrationNumber(null);
-        $user->setSignupDate();
+        $user->setSignupDate(null);
 
         //  insert the new user
         $firstName = $user->getFirstName();
