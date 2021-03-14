@@ -24,3 +24,5 @@ RewriteRule ^sessions$ controller/sessions.php [L]
 RewriteRule ^courses/([0-9]+)$ controller/courses.php?courseid=$1 [L]
 RewriteRule ^courses$ controller/courses.php [L]
 
+RewriteRule ^enroll-courses$ controller/studentCourses.php [L]
+

@@ -240,7 +240,8 @@ elseif (empty($_GET)) {
         "accessToken" => $accessToken,
         "role" => $role,
         "firstName" => $first_name,
-        "lastName" => $last_name
+        "lastName" => $last_name,
+        "userId" => $id
     );
 
     $response = new Response();

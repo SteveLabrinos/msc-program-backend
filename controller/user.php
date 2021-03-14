@@ -208,6 +208,8 @@ if(array_key_exists("userid", $_GET)) {
                 $stmt->bindParam(':seasonNumber', $seasonNumber, PDO::PARAM_STR);
                 $stmt->bindParam(':studentId', $id, PDO::PARAM_INT);
                 $stmt->execute();
+                echo $seasonNumber;
+                echo $id;
 
                 $rowCount = $stmt->rowCount();
 
@@ -216,6 +218,35 @@ if(array_key_exists("userid", $_GET)) {
                     $response->setHttpStatusCode(404);
                     $response->setSuccess(false);
                     $response->addMessage("No Season found to update");
+                    $response->send();
+                    exit;
+                }
+
+                //  Delete registrations from that aren't rated and enrolled
+                $query = 'DELETE FROM registrations
+                          WHERE user_id = :userId
+                          AND status = \'NOT_REGISTERED\'';
+                $stmt = $writeDB->prepare($query);
+                $stmt->bindParam(':userId', $id, PDO::PARAM_INT);
+                $stmt->execute();
+
+                //  insert the registrations init for the season
+                $query = 'INSERT INTO registrations (user_id, course_id)
+                          (SELECT :user_id, id
+                           FROM course
+                           WHERE CONVERT(season, INTEGER) = :seasonNumber)';
+                $stmt = $writeDB->prepare($query);
+                $stmt->bindParam(':user_id', $id, PDO::PARAM_INT);
+                $stmt->bindParam(':seasonNumber', $seasonNumber, PDO::PARAM_INT);
+                $stmt->execute();
+
+                $rowCount = $stmt->rowCount();
+
+                if ($rowCount === 0) {
+                    $response = new Response();
+                    $response->setHttpStatusCode(500);
+                    $response->setSuccess(false);
+                    $response->addMessage("Failed to insert registrations for the user");
                     $response->send();
                     exit;
                 }
@@ -234,7 +265,7 @@ if(array_key_exists("userid", $_GET)) {
             $response = new Response();
             $response->setHttpStatusCode(400);
             $response->setSuccess(false);
-            $response->addMessage("Error updating user - Check the input data");
+            $response->addMessage("Error updating user - Check the input data".$e->getMessage());
             $response->send();
             exit;
         } catch (UserException $e) {
@@ -374,6 +405,27 @@ elseif (empty($_GET)) {
                     $response->setHttpStatusCode(500);
                     $response->setSuccess(false);
                     $response->addMessage("Failed to insert season for the user");
+                    $response->send();
+                    exit;
+                }
+
+                //  insert the registrations init for the season
+                $query = 'INSERT INTO registrations (user_id, course_id)
+                          (SELECT :user_id, id
+                           FROM course
+                           WHERE CONVERT(season, INTEGER) <= :seasonNumber)';
+                $stmt = $writeDB->prepare($query);
+                $stmt->bindParam(':user_id', $createdUserId, PDO::PARAM_INT);
+                $stmt->bindParam(':seasonNumber', $seasonNumber, PDO::PARAM_INT);
+                $stmt->execute();
+
+                $rowCount = $stmt->rowCount();
+
+                if ($rowCount === 0) {
+                    $response = new Response();
+                    $response->setHttpStatusCode(500);
+                    $response->setSuccess(false);
+                    $response->addMessage("Failed to insert registrations for the user");
                     $response->send();
                     exit;
                 }
