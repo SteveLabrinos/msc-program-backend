@@ -19,6 +19,7 @@
     private $birthDate;
     private $signupDate;
     private $registrationNumber;
+    private $seasonNumber;
 
     //  constructor
     public function __construct($id, $firstName, $lastName, $email, 
@@ -74,6 +75,10 @@
 
     public function getBirthDate() {
         return $this->birthDate;
+    }
+
+    public function getSeasonNumber() {
+        return $this->seasonNumber;
     }
 
     //  setters
@@ -163,6 +168,14 @@
         $this->registrationNumber = "MSC-".random_int(1000, 9999);
     }
 
+    public function setSeasonNumber($seasonNumber) {
+        if ((strlen($seasonNumber) > 0) && (intval($seasonNumber) < 1 || intval($seasonNumber) > 3)) {
+            throw new UserException("User Season Number Error");
+        }
+        // if (strlen($seasonNumber) === 0) $this->seasonNumber = '';
+        $this->seasonNumber = $seasonNumber;
+    }
+
     public function returnUserAsArray() {
         $user = array(
             "id" => $this->getId(),
@@ -174,7 +187,8 @@
             "address" => $this->getAddress(),
             "birthDate" => $this->getBirthDate(),
             "signupDate" => $this->getSignupDate(),
-            "registrationNumber" => $this->getRegistrationNumber()
+            "registrationNumber" => $this->getRegistrationNumber(),
+            "seasonNumber" => $this->getSeasonNumber()
         );
 
         return $user;

@@ -162,6 +162,7 @@ if(array_key_exists("userid", $_GET)) {
                 $jsonData->password,
                 $jsonData->role
             );
+            $user->setSeasonNumber($jsonData->seasonNumber);
 
             $id = $user->getId();
             $firstName = $user->getFirstName();
@@ -169,6 +170,7 @@ if(array_key_exists("userid", $_GET)) {
             $email = $user->getEmail();
             $password = $user->getPassword();
             $role = $user->getRole();
+            $seasonNumber = $user->getSeasonNumber();
 
             $query = 'UPDATE app_user
                       SET first_name = :firstName,
@@ -195,6 +197,28 @@ if(array_key_exists("userid", $_GET)) {
                 $response->addMessage("No User found to update");
                 $response->send();
                 exit;
+            }
+
+            //  update season number if the user is STUDENT
+            if ($role === 'STUDENT') {
+                $query = 'UPDATE season
+                          SET season_number = :seasonNumber
+                          WHERE student_id = :studentId';
+                $stmt = $writeDB->prepare($query);
+                $stmt->bindParam(':seasonNumber', $seasonNumber, PDO::PARAM_STR);
+                $stmt->bindParam(':studentId', $id, PDO::PARAM_INT);
+                $stmt->execute();
+
+                $rowCount = $stmt->rowCount();
+
+                if ($rowCount === 0) {
+                    $response = new Response();
+                    $response->setHttpStatusCode(404);
+                    $response->setSuccess(false);
+                    $response->addMessage("No Season found to update");
+                    $response->send();
+                    exit;
+                }
             }
 
             //  prepare the return data
@@ -297,6 +321,7 @@ elseif (empty($_GET)) {
         );
         $user->setRegistrationNumber(null);
         $user->setSignupDate(null);
+        $user->setSeasonNumber($jsonData->seasonNumber);
 
         //  insert the new user
         $firstName = $user->getFirstName();
@@ -306,6 +331,7 @@ elseif (empty($_GET)) {
         $role = $user->getRole();
         $signupDate = $user->getSignupDate();
         $registration = $user->getRegistrationNumber();
+        $seasonNumber = $user->getSeasonNumber();
 
         try {
             $query = 'INSERT INTO app_user (first_name, last_name, email, password, role, signup_date, registration_number)
@@ -334,6 +360,25 @@ elseif (empty($_GET)) {
             //  get the created user id
             $createdUserId = $writeDB->lastInsertId();
 
+            //  insert season if the user has the STUDENT role
+            if ($user->getRole() === 'STUDENT') {
+                $query = '  INSERT INTO season (student_id, season_number)
+                            VALUES (:id, :season)';
+                $stmt = $writeDB->prepare($query);
+                $stmt->bindParam(':id', $createdUserId, PDO::PARAM_INT);
+                $stmt->bindParam(':season', $seasonNumber, PDO::PARAM_STR);
+                $stmt->execute();
+
+                if ($rowCount === 0) {
+                    $response = new Response();
+                    $response->setHttpStatusCode(500);
+                    $response->setSuccess(false);
+                    $response->addMessage("Failed to insert season for the user");
+                    $response->send();
+                    exit;
+                }
+            }
+
             $returnData = array(
                 "id" => intval($createdUserId),
                 "firstName" => $user->getFirstName(),
@@ -341,7 +386,8 @@ elseif (empty($_GET)) {
                 "email" => $user->getEmail(),
                 "role" => $user->getRole(),
                 "signupDate" => $user->getSignupDate(),
-                "registrationNumber" => $user->getRegistrationNumber()
+                "registrationNumber" => $user->getRegistrationNumber(),
+                "seasonNumber" => $seasonNumber
             );
         
             $response = new Response();
@@ -371,9 +417,9 @@ elseif (empty($_GET)) {
     elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
         //  fetch all users from the DB
         try {
-            $query = 'SELECT id, first_name, last_name, password, email, role, phone, address, 
-                             birth_date, signup_date, registration_number
-                      FROM app_user
+            $query = 'SELECT u.id id, first_name, last_name, password, email, role, phone, address, 
+                             birth_date, signup_date, registration_number, season_number
+                      FROM app_user u LEFT JOIN season s ON u.id = s.student_id
                       ORDER BY role, last_name';
             $stmt = $readDB->prepare($query);
             $stmt->execute();
@@ -390,6 +436,7 @@ elseif (empty($_GET)) {
                 $user->setBirthDate($birth_date);
                 $user->setSignupDate(null);
                 $user->setRegistrationNumber(null);
+                $user->setSeasonNumber($season_number);
 
                 $usersArray[] = $user->returnUserAsArray();
             }
