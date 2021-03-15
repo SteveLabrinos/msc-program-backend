@@ -95,10 +95,10 @@ if (empty($_GET)) {
 
     //  GET all requests with choices
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        echo $userId;
-        $query = 'SELECT c.season, title, teacher_id, ects, type, status, grade, r.user_id
+        $query = 'SELECT c.season, title, teacher_id, ects, type, status, grade, r.user_id, r.id reg_id
                   FROM course c LEFT JOIN (SELECT * FROM registrations 
-                                           WHERE user_id = :userId) r ON c.id = r.course_id';
+                                           WHERE user_id = :userId) r ON c.id = r.course_id
+                  ORDER BY c.season, title';
         $stmt = $writeDB->prepare($query);
         $stmt->bindParam(':userId', $userId, PDO::PARAM_INT);
         $stmt->execute();
@@ -118,7 +118,8 @@ if (empty($_GET)) {
                 "type" => $type,
                 "status" => $status,
                 "grade" => $grade,
-                "userId" => $user_id
+                "userId" => $user_id,
+                "registrationId" => $reg_id
             );
             $courseArray[] = $course;
         }
@@ -135,3 +136,57 @@ if (empty($_GET)) {
     }
 }
 //  requests for specific
+elseif (array_key_exists("registrationid", $_GET)) {
+    $registrationId = $_GET['registrationid'];
+    //  update the registration
+    if ($_SERVER['REQUEST_METHOD'] === 'PATCH') {
+        $rawPATCHData = file_get_contents('php://input');
+
+        if (!$jsonData = json_decode($rawPATCHData)) {
+            $response = new Response();
+            $response->setHttpStatusCode(400);
+            $response->setSuccess(false);
+            $response->addMessage("Request body is not valid JSON");
+            $response->send();
+            exit;
+        }
+
+        $status = $jsonData->status;
+        try {
+            //  update the registration id
+            $query = 'UPDATE registrations
+                    SET status = :status
+                    WHERE id = :registrationId';
+            $stmt = $writeDB->prepare($query);
+            $stmt->bindParam(':status', $status, PDO::PARAM_STR);
+            $stmt->bindParam(':registrationId', $registrationId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $rowCount = $stmt->rowCount();
+
+            if ($rowCount === 0) {
+                $response = new Response();
+                $response->setHttpStatusCode(404);
+                $response->setSuccess(false);
+                $response->addMessage("No registrations to update");
+                $response->send();
+                exit;
+            }
+
+            $response = new Response();
+            $response->setHttpStatusCode(200);
+            $response->setSuccess(true);
+            $response->addMessage("Course updated");
+            $response->send();
+            exit;
+        } catch (PDOException $e) {
+            $response = new Response();
+            $response->setHttpStatusCode(500);
+            $response->setSuccess(false);
+            $response->addMessage("Unable to update registration ".$e->getMessage());
+            $response->send();
+            exit;
+        }
+        
+    }
+}
