@@ -28,3 +28,4 @@ RewriteRule ^enroll-courses$ controller/studentCourses.php [L]
 RewriteRule ^enroll-courses/([0-9]+)$ controller/studentCourses.php?registrationid=$1 [L]
 
 RewriteRule ^grades$ controller/grades.php [L]
+RewriteRule ^grades/([0-9]+)$ controller/grades.php?courseid=$1 [L]

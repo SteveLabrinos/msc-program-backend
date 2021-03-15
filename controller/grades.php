@@ -142,6 +142,140 @@ if (empty($_GET)) {
         exit;
     }
 }
+//  get students for a specific course
+elseif (array_key_exists("courseid", $_GET)) {
+    $courseId = $_GET['courseid'];
+
+    if ($courseId === '' || !is_numeric($courseId)) {
+        $response = new Response();
+        $response->setHttpStatusCode(400);
+        $response->setSuccess(false);
+        $courseId === '' ? $response->addMessage("Course ID cannot be blank") : false;
+        !is_numeric($courseId) ? $response->addMessage("Course ID must be a number") : false;
+        $response->send();
+        exit;
+    }
+
+    //  fetch all students that enrolled for the course
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        //  get all registrations that have enrolled for this course
+        try {
+            $query = '  SELECT r.user_id, u.first_name, u.last_name, u.registration_number, r.grade, r.id
+                        FROM registrations r JOIN app_user u ON r.user_id = u.id
+                        WHERE r.course_id = :courseId
+                        AND status = \'REGISTERED\'';
+            $stmt = $readDB->prepare($query);
+            $stmt->bindParam(':courseId', $courseId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $rowCount = $stmt->rowCount();
+
+            //  prepare the response data
+            $studentsArray = array();
+
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                extract($row);
+                $student = array(
+                    "id" => $user_id,
+                    "firstName" => $first_name,
+                    "lastName" => $last_name,
+                    "registrationNumber" => $registration_number,
+                    "grade" => $grade === null ? '' : $grade,
+                    "registrationId" => $id
+                );
+
+                $studentsArray[] = $student;
+            }
+
+            $returnData = array(
+                "rows_returned" => $rowCount,
+                "students" => $studentsArray
+            );
+
+            $response = new Response();
+            $response->setHttpStatusCode(200);
+            $response->setSuccess(true);
+            $response->setData($returnData);
+            $response->send();
+            exit;
+        } catch (PDOException $e) {
+            $response = new Response();
+            $response->setHttpStatusCode(500);
+            $response->setSuccess(false);
+            $response->addMessage("There was an issue getting course enrolled students. ".$e->getMessage());
+            $response->send();
+            exit;
+        }
+    }
+    //  update the grade for a student provided the registration id
+    elseif($_SERVER['REQUEST_METHOD'] === 'PATCH') {
+        //  check the content type
+        if($_SERVER['CONTENT_TYPE'] !== 'application/json') {
+            $response = new Response();
+            $response->setHttpStatusCode(400);
+            $response->setSuccess(false);
+            $response->addMessage("Content type header not set to JSON");
+            $response->send();
+            exit;
+        }
+
+        $rawPATCHData = file_get_contents('php://input');
+
+        if (!$jsonData = json_decode($rawPATCHData)) {
+            $response = new Response();
+            $response->setHttpStatusCode(400);
+            $response->setSuccess(false);
+            $response->addMessage("Request body is not valid JSON");
+            $response->send();
+            exit;
+        }
+
+        try {
+            $query = '  UPDATE registrations
+                        SET grade = :grade
+                        WHERE id = :registrationId';
+            $stmt = $writeDB->prepare($query);
+            $stmt->bindParam(':grade', $jsonData->grade, PDO::PARAM_INT);
+            $stmt->bindParam(':registrationId', $jsonData->registrationId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $rowCount = $stmt->rowCount();
+
+            if ($rowCount === 0) {
+                $response = new Response();
+                $response->setHttpStatusCode(404);
+                $response->setSuccess(false);
+                $response->addMessage("No registration found to update");
+                $response->send();
+                exit;
+            }
+
+            //  prepare the response data
+            $responseData = array(
+                "rows_returned" => $rowCount,
+                "grade" => $jsonData->grade
+            );
+            $response = new Response();
+            $response->setHttpStatusCode(201);
+            $response->setSuccess(true);
+            $response->addMessage("Registration updated");
+            $response->setData($responseData);
+            $response->send();
+            exit;
+
+        } catch (PDOException $e) {
+            $response = new Response();
+            $response->setHttpStatusCode(500);
+            $response->setSuccess(false);
+            $response->addMessage("Error updating the registration. ".$e->getMessage());
+            $response->send();
+            exit;
+        }
+
+
+
+    }
+}
 //  block unknows rootls
 else {
     $response = new Response();
