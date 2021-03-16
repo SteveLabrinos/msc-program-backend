@@ -163,6 +163,11 @@ if(array_key_exists("userid", $_GET)) {
                 $jsonData->role
             );
             $user->setSeasonNumber($jsonData->seasonNumber);
+            $user->setPhone($jsonData->phone);
+            $user->setAddress($jsonData->address);
+            $user->setBirthDate($jsonData->birthDate);
+
+            // var_dump($user);
 
             $id = $user->getId();
             $firstName = $user->getFirstName();
@@ -171,13 +176,19 @@ if(array_key_exists("userid", $_GET)) {
             $password = $user->getPassword();
             $role = $user->getRole();
             $seasonNumber = $user->getSeasonNumber();
+            $phone = $user->getPhone();
+            $address = $user->getAddress();
+            $birhDate = $user->getBirthDate();
 
             $query = 'UPDATE app_user
                       SET first_name = :firstName,
                           last_name = :lastName,
                           email = :email,
                           password = :password,
-                          role = :role
+                          role = :role,
+                          phone = :phone,
+                          address = :address,
+                          birth_date = STR_TO_DATE(:birthDate, \'%d/%m/%Y\')
                       WHERE id = :id';
             $stmt = $writeDB->prepare($query);
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
@@ -186,6 +197,9 @@ if(array_key_exists("userid", $_GET)) {
             $stmt->bindParam(':email', $email, PDO::PARAM_STR);
             $stmt->bindParam(':password', $password, PDO::PARAM_STR);
             $stmt->bindParam(':role', $role, PDO::PARAM_STR);
+            $stmt->bindParam(':phone', $phone, PDO::PARAM_STR);
+            $stmt->bindParam(':address', $address, PDO::PARAM_STR);
+            $stmt->bindParam(':birthDate', $birhDate, PDO::PARAM_STR);
             $stmt->execute();
 
             $rowCount = $stmt->rowCount();
@@ -208,19 +222,17 @@ if(array_key_exists("userid", $_GET)) {
                 $stmt->bindParam(':seasonNumber', $seasonNumber, PDO::PARAM_STR);
                 $stmt->bindParam(':studentId', $id, PDO::PARAM_INT);
                 $stmt->execute();
-                echo $seasonNumber;
-                echo $id;
 
-                $rowCount = $stmt->rowCount();
+                // $rowCount = $stmt->rowCount();
 
-                if ($rowCount === 0) {
-                    $response = new Response();
-                    $response->setHttpStatusCode(404);
-                    $response->setSuccess(false);
-                    $response->addMessage("No Season found to update");
-                    $response->send();
-                    exit;
-                }
+                // if ($rowCount === 0) {
+                //     $response = new Response();
+                //     $response->setHttpStatusCode(404);
+                //     $response->setSuccess(false);
+                //     $response->addMessage("No Season found to update");
+                //     $response->send();
+                //     exit;
+                // }
 
                 //  Delete registrations from that aren't rated and enrolled
                 $query = 'DELETE FROM registrations
@@ -470,7 +482,8 @@ elseif (empty($_GET)) {
         //  fetch all users from the DB
         try {
             $query = 'SELECT u.id id, first_name, last_name, password, email, role, phone, address, 
-                             birth_date, signup_date, registration_number, season_number
+                             DATE_FORMAT(birth_date, "%d/%m/%Y") birth_date, DATE_FORMAT(signup_date, "%d/%m/%Y") signup_date, 
+                             registration_number, season_number
                       FROM app_user u LEFT JOIN season s ON u.id = s.student_id
                       ORDER BY role, last_name';
             $stmt = $readDB->prepare($query);
@@ -482,12 +495,13 @@ elseif (empty($_GET)) {
 
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 extract($row);
+
                 $user = new User($id, $first_name, $last_name, $email, $password, $role);
                 $user->setAddress($address);
                 $user->setPhone($phone);
                 $user->setBirthDate($birth_date);
-                $user->setSignupDate(null);
-                $user->setRegistrationNumber(null);
+                $user->setSignupDate($signup_date);
+                $user->setRegistrationNumber($registration_number);
                 $user->setSeasonNumber($season_number);
 
                 $usersArray[] = $user->returnUserAsArray();

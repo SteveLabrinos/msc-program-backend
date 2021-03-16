@@ -66,15 +66,15 @@
     }
 
     public function getPhone() {
-        return $this->phone;
+        return $this->phone === null ? '' : $this->phone;
     }
 
     public function getAddress() {
-        return $this->address;
+        return $this->address === null ? '' : $this->address;
     }
 
     public function getBirthDate() {
-        return $this->birthDate;
+        return $this->birthDate === null ? '' : $this->birthDate;
     }
 
     public function getSeasonNumber() {
@@ -149,7 +149,7 @@
             && date_format(date_create_from_format('d/m/Y', $birthDate), 'd/m/Y') !== $birthDate) {
             throw new UserException("User Birth Date Error");
         }
-        $this->birhDate = $birthDate;
+        $this->birthDate = $birthDate;
     }
     
     public function setSignupDate($signupDate) {
@@ -158,21 +158,25 @@
             throw new UserException("User Sign up Date Error");
         } elseif (!$signupDate) {
             $this->signupDate = date("d/m/Y");
+        } else {
+            $this->signupDate = $signupDate;
         }
     }
 
     public function setRegistrationNumber($registrationNumber) {
-        if(($registrationNumber !== null) && (!is_numeric($registrationNumber))) {
+        if(($registrationNumber !== null) && (strlen($registrationNumber) > 50)) {
             throw new UserException("User Registration Number Error");
+        } elseif (!$registrationNumber) {
+            $this->registrationNumber = "MSC-".random_int(1000, 9999);
+        } else {
+            $this->registrationNumber = $registrationNumber;
         }
-        $this->registrationNumber = "MSC-".random_int(1000, 9999);
     }
 
     public function setSeasonNumber($seasonNumber) {
         if ((strlen($seasonNumber) > 0) && (intval($seasonNumber) < 1 || intval($seasonNumber) > 3)) {
             throw new UserException("User Season Number Error");
-        }
-        // if (strlen($seasonNumber) === 0) $this->seasonNumber = '';
+        } 
         $this->seasonNumber = $seasonNumber;
     }
 
