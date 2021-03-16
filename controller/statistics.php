@@ -56,7 +56,8 @@ if (array_key_exists("studentid", $_GET)) {
             $query = '  SELECT count(*) enrolls, s.season_number season
                         FROM registrations r JOIN season s ON r.user_id = s.student_id
                         WHERE r.user_id = :studentId
-                        AND r.status = \'REGISTERED\'';
+                        AND r.status = \'REGISTERED\'
+                        AND r.grade IS NULL';
             $stmt = $readDB->prepare($query);
             $stmt->bindParam(':studentId', $studendId, PDO::PARAM_INT);
             $stmt->execute();
