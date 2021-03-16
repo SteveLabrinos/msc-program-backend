@@ -155,8 +155,8 @@ elseif (array_key_exists("registrationid", $_GET)) {
         try {
             //  update the registration id
             $query = 'UPDATE registrations
-                    SET status = :status
-                    WHERE id = :registrationId';
+                      SET status = :status
+                      WHERE id = :registrationId';
             $stmt = $writeDB->prepare($query);
             $stmt->bindParam(':status', $status, PDO::PARAM_STR);
             $stmt->bindParam(':registrationId', $registrationId, PDO::PARAM_INT);

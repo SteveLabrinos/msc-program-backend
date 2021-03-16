@@ -8,13 +8,6 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 
 
-#RewriteRule ^tasks/([0-9]+)$ controller/task.php?taskid=$1 [L]
-#RewriteRule ^tasks/complete$ controller/task.php?completed=Y [L]
-#RewriteRule ^tasks/incomplete$ controller/task.php?completed=N [L]
-#RewriteRule ^tasks/page/([0-9]+)$ controller/task.php?page=$1 [L]
-#RewriteRule ^tasks$ controller/task.php [L]
-
-
 RewriteRule ^users$ controller/user.php [L]
 RewriteRule ^users/([0-9]+)$ controller/user.php?userid=$1 [L]
 
@@ -29,3 +22,5 @@ RewriteRule ^enroll-courses/([0-9]+)$ controller/studentCourses.php?registration
 
 RewriteRule ^grades$ controller/grades.php [L]
 RewriteRule ^grades/([0-9]+)$ controller/grades.php?courseid=$1 [L]
+
+RewriteRule ^statistics/([0-9]+)$ controller/statistics.php?studentid=$1 [L]
