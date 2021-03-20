@@ -66,15 +66,18 @@
     }
 
     public function getPhone() {
-        return $this->phone === null ? '' : $this->phone;
+        // return $this->phone === null ? '' : $this->phone;
+        return $this->phone;
     }
 
     public function getAddress() {
-        return $this->address === null ? '' : $this->address;
+        // return $this->address === null ? '' : $this->address;
+        return $this->address;
     }
 
     public function getBirthDate() {
-        return $this->birthDate === null ? '' : $this->birthDate;
+        // return $this->birthDate === null ? '' : $this->birthDate;
+        return $this->birthDate;
     }
 
     public function getSeasonNumber() {
