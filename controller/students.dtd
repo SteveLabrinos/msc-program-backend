@@ -1,0 +1,7 @@
+<!ELEMENT Students (Season,Student*)>
+<!ELEMENT Season (#PCDATA)>
+<!ELEMENT Student (FirstName,LastName,AverageGrade,CoursesPasses)>
+<!ELEMENT FirstName (#PCDATA)>
+<!ELEMENT LastName (#PCDATA)>
+<!ELEMENT AverageGrade (#PCDATA)>
+<!ELEMENT CoursesPasses (#PCDATA)>

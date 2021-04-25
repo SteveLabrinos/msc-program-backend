@@ -69,13 +69,14 @@ if(array_key_exists("season", $_GET)) {
                 exit;
             } 
 
+            //  create a new implementation XML file with DTD reference
             $imp = new DOMImplementation;
-
-            $dtd = $imp->CreateDocumentType('students', '', 'students.dtd');
+            //  refer the dtd
+            $dtd = $imp->CreateDocumentType('Students', '', 'students.dtd');
             $dom = $imp->createDocument("", "", $dtd);
             $dom->encoding = 'UTF-8';
             $dom->standalone = false;
-
+            //  create the root element of the XML file
             $root = $dom->createElement('Students');
             $season_node = $dom->createElement('Season', $season);
             $root->appendChild($season_node);
@@ -83,7 +84,7 @@ if(array_key_exists("season", $_GET)) {
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 extract($row);
                 //  new Student node
-                $student_node = $dom->createElement('Studen');
+                $student_node = $dom->createElement('Student');
                 $child_node_first_name = $dom->createElement('FirstName', $first_name);
                 $student_node->appendChild($child_node_first_name);
                 $child_node_last_name = $dom->createElement('LastName', $last_name);
@@ -101,45 +102,12 @@ if(array_key_exists("season", $_GET)) {
             $xml_file_name = 'students_season_report.xml';
             $dom->save($xml_file_name);
 
-            // $dom = new DOMDocument;
-            // $dom->load('students_season_report.xml');
-            if ($dom->validate()) {
-                echo "This is valid doc";
-            } else {
-                echo "Not a valid doc";
+            //  validate the xml that is created before using XSL to create the content
+            try {
+                $dom->validate();
+            } catch (exception $ex) {
+                echo $ex.getMessage();
             }
-
-            //  generate the XML file
-            //  create a new DOM object and set the properties
-            // $dom = new DOMDocument('1.0', 'utf-8');
-            // $dom->formatOutput = true;
-
-            // //  create the XML file and populate the data from the dom object
-            // $xml_file_name = 'studends_season_report.xml';
-            // //  root element
-            // $root = $dom->createElement('Students');
-            // $season_node = $dom->createElement('Season', $season);
-            // $root->appendChild($season_node);
-            // //  creating all the students based on the SQL query
-            // while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            //     extract($row);
-            //     //  new Student node
-            //     $student_node = $dom->createElement('Studen');
-            //     $child_node_first_name = $dom->createElement('FirstName', $first_name);
-            //     $student_node->appendChild($child_node_first_name);
-            //     $child_node_last_name = $dom->createElement('LastName', $last_name);
-            //     $student_node->appendChild($child_node_last_name);
-            //     $child_node_avg_grade = $dom->createElement('AverageGrade', $average_grade);
-            //     $student_node->appendChild($child_node_avg_grade);
-            //     $child_node_courses_passed = $dom->createElement('CoursesPasses', $courses_passed);
-            //     $student_node->appendChild($child_node_courses_passed);
-            //     $root->appendChild($student_node);
-            // }
-            // $dom->appendChild($root);
-            // echo '<xmp>'.$dom->saveXML().'</xmp>';
-            // $dom->save($xml_file_name);
-            // // return $xml_file_name;
-            // echo "$xml_file_name succesfully created";
             
             exit;
         } catch (PDOException $ex) {
