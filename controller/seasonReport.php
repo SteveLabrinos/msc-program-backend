@@ -69,6 +69,25 @@ if(array_key_exists("season", $_GET)) {
                 exit;
             } 
 
+            // selecting the second best average grade
+            $query = 'SELECT MIN(average_grade) high_grade
+                      FROM (
+                              SELECT ROUND(AVG(grade), 2) average_grade
+                              FROM season
+                                      INNER JOIN registrations ON season.student_id = registrations.user_id
+                              WHERE season_number = :season
+                                AND grade >= 5
+                              GROUP BY student_id
+                              ORDER BY 1 DESC
+                              LIMIT 2) student_list';
+            $stmt2 = $readDB->prepare($query);
+            $stmt2->bindParam(':season', $season, PDO::PARAM_STR);
+            $stmt2->execute();
+            
+            //  getting the flag grade
+            $row = $stmt2->fetch(PDO::FETCH_ASSOC);
+            extract($row);
+
             //  create a new implementation XML file with DTD reference
             $imp = new DOMImplementation;
             //  refer the dtd
@@ -93,6 +112,10 @@ if(array_key_exists("season", $_GET)) {
                 $student_node->appendChild($child_node_avg_grade);
                 $child_node_courses_passed = $dom->createElement('CoursesPasses', $courses_passed);
                 $student_node->appendChild($child_node_courses_passed);
+                if ($average_grade >= $high_grade) {
+                    $child_node_high_grade = $dom->createElement('HighGrade');
+                    $student_node->appendChild($child_node_high_grade);
+                }
                 $root->appendChild($student_node);
             }
             $dom->appendChild($root);
