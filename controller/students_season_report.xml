@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE students SYSTEM "students.dtd">
+<Students><Season>3</Season><Studen><FirstName>Τάσος</FirstName><LastName>Αυγέρος</LastName><AverageGrade>6.67</AverageGrade><CoursesPasses>3</CoursesPasses></Studen><Studen><FirstName>Νίκος</FirstName><LastName>Κορόμπος</LastName><AverageGrade>10.00</AverageGrade><CoursesPasses>4</CoursesPasses></Studen></Students>
