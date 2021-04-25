@@ -120,7 +120,7 @@ if(array_key_exists("season", $_GET)) {
             }
             $dom->appendChild($root);
             //  send the xml to the frontend
-            echo $dom->saveXML();
+            // echo $dom->saveXML();
             //  save an XML file fro the exercise needs
             $xml_file_name = 'students_season_report.xml';
             $dom->save($xml_file_name);
@@ -131,6 +131,16 @@ if(array_key_exists("season", $_GET)) {
             } catch (exception $ex) {
                 echo $ex.getMessage();
             }
+            $xml = new DOMDocument;
+            $xml->load('students_season_report.xml');
+            //  load the xsl file to perform the transformation
+            $xsl = new DOMDocument;
+            $xsl->load('studentsList.xsl');
+
+            //  configure the transformer
+            $proc = new XSLTProcessor;
+            $proc->importStyleSheet($xsl);
+            echo $proc->transformToXML($xml);
             
             exit;
         } catch (PDOException $ex) {
