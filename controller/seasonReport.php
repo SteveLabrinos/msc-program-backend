@@ -119,20 +119,21 @@ if(array_key_exists("season", $_GET)) {
                 $root->appendChild($student_node);
             }
             $dom->appendChild($root);
-            //  send the xml to the frontend
-            // echo $dom->saveXML();
             //  save an XML file fro the exercise needs
             $xml_file_name = 'students_season_report.xml';
             $dom->save($xml_file_name);
+            //  use to transfer only the XML back to the frontend
+            // echo $dom->saveXML();
+            // exit;
 
             //  validate the xml that is created before using XSL to create the content
             try {
                 $dom->validate();
             } catch (exception $ex) {
-                echo $ex.getMessage();
+                echo 'Αδυναμία επαλήθευσης του αρχείου XML: '.$ex.getMessage();
+                exit;
             }
-            $xml = new DOMDocument;
-            $xml->load('students_season_report.xml');
+            
             //  load the xsl file to perform the transformation
             $xsl = new DOMDocument;
             $xsl->load('studentsList.xsl');
@@ -140,8 +141,7 @@ if(array_key_exists("season", $_GET)) {
             //  configure the transformer
             $proc = new XSLTProcessor;
             $proc->importStyleSheet($xsl);
-            echo $proc->transformToXML($xml);
-            
+            echo $proc->transformToXML($dom);
             exit;
         } catch (PDOException $ex) {
             $response = new Response();

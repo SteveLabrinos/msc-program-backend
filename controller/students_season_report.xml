@@ -1,3 +1,3 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE Students SYSTEM "students.dtd">
-<Students><Season>2</Season><Student><FirstName>Τάκης</FirstName><LastName>Δοκιμαστικός</LastName><AverageGrade>9.00</AverageGrade><CoursesPasses>4</CoursesPasses><HighGrade/></Student><Student><FirstName>Εμμανουέλα</FirstName><LastName>Νικολάου</LastName><AverageGrade>6.00</AverageGrade><CoursesPasses>3</CoursesPasses></Student><Student><FirstName>Μαρία</FirstName><LastName>Πικραμένη</LastName><AverageGrade>6.33</AverageGrade><CoursesPasses>3</CoursesPasses><HighGrade/></Student></Students>
+<Students><Season>1</Season><Student><FirstName>Τάσος</FirstName><LastName>Ματσαμπλόκος</LastName><AverageGrade>7.33</AverageGrade><CoursesPasses>3</CoursesPasses><HighGrade/></Student><Student><FirstName>Γεώργιος</FirstName><LastName>Πεδαιμένος</LastName><AverageGrade>7.00</AverageGrade><CoursesPasses>1</CoursesPasses><HighGrade/></Student></Students>
